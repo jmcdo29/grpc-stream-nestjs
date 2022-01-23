@@ -1,12 +1,15 @@
 import { GrpcStreamMethod } from '@nestjs/microservices';
-
+import { Controller } from '@nestjs/common';
+import { Metadata, ServerDuplexStream } from '@grpc/grpc-js';
+import { interval, Observable, Subject, map } from 'rxjs';
+@Controller()
 export class AppService {
-  @GrpcStreamMethod()
-  createNewData(): any {
-    setInterval(() => {
-      const data = Math.floor(Math.random())
-      console.log(`Data generated to be received by the NestJS app automatically: ${data}`);
-      return data;
-    }, 5000) // generated random number and sends it every 5 seconds
+  @GrpcStreamMethod('HelloService')
+  bidiHello(
+    messages: Observable<any>,
+    metadata: Metadata,
+    call: ServerDuplexStream<any, any>,
+  ): Observable<any> {
+    return interval(5000).pipe(map(() => ({ reply: Math.random() })));
   }
 }
