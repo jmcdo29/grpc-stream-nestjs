@@ -1,24 +1,21 @@
-import { Controller, Inject, OnModuleInit } from '@nestjs/common';
-import { EMPTY } from 'rxjs';
 import { ClientGrpc } from '@nestjs/microservices';
-
-interface HelloService {
-  bidiHello(): any;
-}
+import { Controller, Get, Inject, OnModuleInit } from '@nestjs/common';
+import { interval, Observable, Subject, map } from 'rxjs';
+import { GrpcStreamMethod, GrpcStreamCall } from '@nestjs/microservices';
 
 @Controller()
-export class AppService implements OnModuleInit{
-  private helloService;params: {}
-
+export class AppController {
+  private helloService;
   constructor(
     @Inject('HELLO_PACKAGE') private readonly grpcClientProxy: ClientGrpc,
-  ) {}
+  ) { }
 
-  onModuleInit() {
-      console.log('init')
-      this.helloService = this.grpcClientProxy.getService('HelloService');
-      console.log('calling bidiHello which is located inside the main-app')
-      console.log('im supposed to somehow send some random generated number to the main-app')
-      return this.helloService.bidiHello(EMPTY)
+  @GrpcStreamMethod('HelloService')
+  lotsOfGreetings(
+  ): Observable<any> {
+    return interval(5000).pipe(map(() => ({
+      id: Math.random(),
+      name: `test name ${Math.random()}`
+    })));
   }
 }

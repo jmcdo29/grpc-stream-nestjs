@@ -1,20 +1,26 @@
+import { GrpcStreamMethod, GrpcStreamCall } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
-import { GrpcStreamMethod } from '@nestjs/microservices';
+import { Metadata, ServerDuplexStream } from '@grpc/grpc-js';
+import { interval, Observable, Subject, map } from 'rxjs';
+
+interface HelloService { 
+  lotsOfGreetings(
+    upstream: Observable<HelloRequest>,
+  ): any;
+}
+
+interface HelloRequest {
+  id: number;
+  name: string;
+}
 
 @Controller()
-export class AppController {
-
-  @GrpcStreamMethod('HelloService', 'BidiHello')
-  async bidiHello() {
-    const fake_data_got_from_microservice = {
-      id: Math.floor(Math.random() * 10),
-      name: 'test name'
-    }
-    console.log('i was launched from the microservice!')
-    console.log('this is the data that was passed to me from the microservice: ', fake_data_got_from_microservice)
-    console.log('i will now save data that i just got to the database: await this.helloRepository.save(newHello);')
-    return {
-      fake_data_got_from_microservice
-    }
+export class AppService {
+  @GrpcStreamCall('HelloService')
+  lotsOfGreetings(requestStream: any, callback: (err: unknown, value: any) => void) {
+    requestStream.on('data', message => {
+      console.log('data object received: ', message);
+      console.log('this.eventRepository.save(event)')
+    });
   }
 }
