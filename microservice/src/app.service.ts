@@ -1,15 +1,22 @@
-import { GrpcStreamMethod } from '@nestjs/microservices';
-import { Controller } from '@nestjs/common';
-import { Metadata, ServerDuplexStream } from '@grpc/grpc-js';
-import { interval, Observable, Subject, map } from 'rxjs';
+import { Controller, Inject, OnModuleInit } from '@nestjs/common';
+import { EMPTY } from 'rxjs';
+import { ClientGrpc } from '@nestjs/microservices';
+
+interface HelloService {
+  bidiHello(): any;
+}
+
 @Controller()
-export class AppService {
-  @GrpcStreamMethod('HelloService')
-  bidiHello(
-    messages: Observable<any>,
-    metadata: Metadata,
-    call: ServerDuplexStream<any, any>,
-  ): Observable<any> {
-    return interval(5000).pipe(map(() => ({ reply: Math.random() })));
+export class AppService implements OnModuleInit{
+  private helloService;params: {}
+
+  constructor(
+    @Inject('HELLO_PACKAGE') private readonly grpcClientProxy: ClientGrpc,
+  ) {}
+
+  onModuleInit() {
+      console.log('init')
+      this.helloService = this.grpcClientProxy.getService('HelloService');
+      return this.helloService.bidiHello(EMPTY)
   }
 }

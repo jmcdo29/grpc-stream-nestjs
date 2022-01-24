@@ -1,16 +1,19 @@
 import { ClientGrpc } from '@nestjs/microservices';
-import { Controller, Get, Inject, OnModuleInit } from '@nestjs/common';
-import { interval, map, ReplaySubject, tap, EMPTY } from 'rxjs';
+import { Controller, Get, Inject } from '@nestjs/common';
+import { GrpcStreamMethod, GrpcMethod } from '@nestjs/microservices';
 
 @Controller()
-export class AppController implements OnModuleInit {
-  private helloService;
-  constructor(
-    @Inject('HELLO_PACKAGE') private readonly grpcClientProxy: ClientGrpc,
-  ) {}
+export class AppController {
 
-  onModuleInit() {
-    this.helloService = this.grpcClientProxy.getService('HelloService');
-    this.helloService.bidiHello(EMPTY).pipe(tap(console.log)).subscribe();
+  @GrpcMethod('HelloService', 'BidiHello')
+  // @GrpcMethod()
+  // @GrpcStreamMethod('HelloService', 'BidiHello')
+  // @GrpcStreamMethod()
+  async bidiHello() {
+    console.log('i was launched')
+    const data = 'hello';
+    return {
+      data
+    }
   }
 }

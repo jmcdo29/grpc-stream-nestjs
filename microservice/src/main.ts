@@ -14,7 +14,7 @@ async function bootstrap() {
       url: 'localhost:50051',
     },
   });
- 
+//  app.init()
   app.startAllMicroservices();
 }
 bootstrap();
