@@ -17,6 +17,8 @@ export class AppService implements OnModuleInit{
   onModuleInit() {
       console.log('init')
       this.helloService = this.grpcClientProxy.getService('HelloService');
+      console.log('calling bidiHello which is located inside the main-app')
+      console.log('im supposed to somehow send some random generated number to the main-app')
       return this.helloService.bidiHello(EMPTY)
   }
 }
